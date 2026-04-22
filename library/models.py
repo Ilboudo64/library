@@ -18,9 +18,10 @@ class Reader(models.Model):
         return self.name
 
 class Reservation(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    # Un livre ne peut être lié qu'à UNE seule réservation active
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, unique=True) 
     reader = models.ForeignKey(Reader, on_delete=models.CASCADE)
     date_reservation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.reader} - {self.book.title}"
+        return f"{self.reader.name} - {self.book.title}"
