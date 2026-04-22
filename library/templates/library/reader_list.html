@@ -1,0 +1,55 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Lecteurs Inscrits</h2>
+    <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormReader" aria-expanded="false" aria-controls="collapseFormReader">
+        <i class="bi bi-plus-lg me-2"></i> Ajouter un lecteur
+    </button>
+</div>
+
+<div class="collapse mb-4" id="collapseFormReader">
+    <div class="card card-body shadow-sm">
+        <h5 class="fw-bold mb-3">Ajouter un nouveau lecteur</h5>
+        <form method="POST" action="{% url 'add_reader' %}"> {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label small">Nom complet</label>
+                    <input type="text" name="name" class="form-control" placeholder="Ex: Marie Dupont" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small">Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="marie@email.com" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th class="ps-4">Nom</th>
+                <th>Email</th>
+                <th class="text-end pe-4">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reader in readers %}
+            <tr>
+                <td class="ps-4">{{ reader.name }}</td>
+                <td>{{ reader.email }}</td>
+                <td class="text-end pe-4">
+                    <button class="btn btn-link text-primary p-0 me-2"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-link text-danger p-0"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Catalogue des Livres</h2>
+    <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormBook" aria-expanded="false" aria-controls="collapseFormBook">
+        <i class="bi bi-plus-lg me-2"></i> Ajouter un livre
+    </button>
+</div>
+
+<div class="collapse mb-4" id="collapseFormBook">
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-4">Nouveau Livre</h4>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label text-muted small">Titre</label>
+                    <input type="text" name="title" class="form-control" placeholder="Titre du livre" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted small">Auteur</label>
+                    <input type="text" name="author" class="form-control" placeholder="Nom de l'auteur" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Année</label>
+                    <input type="number" name="year" class="form-control" value="2026" required>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary px-4" style="background-color: #1e293b; border: none;">Enregistrer</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#collapseFormBook">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm p-3 mb-4">
+    <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Rechercher par titre ou auteur...">
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Année</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td class="fw-medium">{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>
+                        {% if book.reservation %}
+                            <span class="badge rounded-pill bg-danger-subtle text-danger">Réservé</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-success-subtle text-success">Disponible</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">Aucun livre disponible dans le catalogue.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
