@@ -3,6 +3,8 @@ from .models import Book, Reader, Reservation
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import BookSerializer, ReservationSerializer
+from django.db import IntegrityError
+from django.contrib import messages
 
 
 def book_list(request):
@@ -87,15 +89,18 @@ def add_reader(request):
         name = request.POST.get('name')
         email = request.POST.get('email')
         
-        # Création du lecteur dans la base de données
-        Reader.objects.create(name=name, email=email)
+        try:
+            Reader.objects.create(name=name, email=email)
+            messages.success(request, "Lecteur ajouté avec succès !")
+        except IntegrityError:
+            # C'est ici qu'on gère le message pour l'utilisateur
+            messages.error(request, f"Erreur : Le nom '{name}' ou l'email '{email}' est déjà utilisé.")
         
-        # Redirige vers la liste des lecteurs après l'enregistrement
-        return redirect('reader_list') # Remplacez par le nom de votre vue de liste
+        # Dans tous les cas (succès ou erreur), on revient à la liste
+        return redirect('reader_list')
     
-    # Si ce n'est pas du POST, on redirige simplement (ou on affiche une erreur)
+    # Si quelqu'un essaie d'accéder à /readers/add/ sans poster de formulaire
     return redirect('reader_list')
-
 
 # Vue pour modifier
 def edit_reader(request, pk):

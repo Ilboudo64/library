@@ -8,6 +8,15 @@
     </button>
 </div>
 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
 <div class="collapse mb-4" id="collapseFormReader">
     <div class="card card-body shadow-sm border-0">
         <h5 class="fw-bold mb-3">Ajouter un nouveau lecteur</h5>
@@ -79,6 +88,7 @@
                     </a>
                 </td>
             </tr>
+            
             {% empty %}
             <tr>
                 <td colspan="3" class="text-center py-4 text-muted">Aucun lecteur inscrit.</td>
