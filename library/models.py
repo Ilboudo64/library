@@ -5,6 +5,7 @@ class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
     year = models.IntegerField()
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -17,9 +18,9 @@ class Reader(models.Model):
         return self.name
 
 class Reservation(models.Model):
-    book = models.OneToOneField(Book, on_delete=models.CASCADE) # Un livre = une seule réservation active
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
     reader = models.ForeignKey(Reader, on_delete=models.CASCADE)
-    date_reserved = models.DateTimeField(auto_now_add=True)
+    date_reservation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.book.title} réservé par {self.reader.name}"
+        return f"{self.reader} - {self.book.title}"

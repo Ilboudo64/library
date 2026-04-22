@@ -9,9 +9,10 @@
 </div>
 
 <div class="collapse mb-4" id="collapseFormReader">
-    <div class="card card-body shadow-sm">
+    <div class="card card-body shadow-sm border-0">
         <h5 class="fw-bold mb-3">Ajouter un nouveau lecteur</h5>
-        <form method="POST" action="{% url 'add_reader' %}"> {% csrf_token %}
+        <form method="POST" action="{% url 'add_reader' %}"> 
+            {% csrf_token %}
             <div class="row g-3">
                 <div class="col-md-5">
                     <label class="form-label small">Nom complet</label>
@@ -23,6 +24,29 @@
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editFormContainer" style="display: none;" class="mb-4">
+    <div class="card card-body shadow-sm border-0 bg-light">
+        <h5 class="fw-bold mb-3">Modifier le Lecteur</h5>
+        <form id="editReaderForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label small">Nom complet</label>
+                    <input type="text" id="edit_name" name="name" class="form-control" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small">Email</label>
+                    <input type="email" id="edit_email" name="email" class="form-control" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-success w-100">Mettre à jour</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideEditForm()">Annuler</button>
                 </div>
             </div>
         </form>
@@ -44,12 +68,53 @@
                 <td class="ps-4">{{ reader.name }}</td>
                 <td>{{ reader.email }}</td>
                 <td class="text-end pe-4">
-                    <button class="btn btn-link text-primary p-0 me-2"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-link text-danger p-0"><i class="bi bi-trash"></i></button>
+                <button type="button" class="btn btn-link text-primary p-0 me-2" 
+                    onclick="showEditForm('{{ reader.pk }}', '{{ reader.name|escapejs }}', '{{ reader.email|escapejs }}')">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                    
+                    <a href="{% url 'delete_reader' reader.pk %}" class="btn btn-link text-danger p-0" 
+                       onclick="return confirm('Voulez-vous vraiment supprimer ce lecteur ?');">
+                        <i class="bi bi-trash"></i>
+                    </a>
                 </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center py-4 text-muted">Aucun lecteur inscrit.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    /**
+     * Affiche le formulaire de modification et le pré-remplit
+     */
+function showEditForm(id, name, email) {
+    // Affiche le formulaire
+    const container = document.getElementById('editFormContainer');
+    if(container) container.style.display = 'block';
+    
+    // Remplit les données
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_email').value = email;
+    
+    // Définit l'URL
+    document.getElementById('editReaderForm').action = "/readers/edit/" + id + "/";
+    
+    // Remonte en haut de page pour voir le formulaire
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+    /**
+     * Cache le formulaire de modification
+     */
+    function hideEditForm() {
+        document.getElementById('editFormContainer').style.display = 'none';
+    }
+</script>
 {% endblock %}

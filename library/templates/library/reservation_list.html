@@ -1,35 +1,42 @@
 {% extends 'library/base.html' %}
 
 {% block content %}
-<div class="mb-4">
-    <h2>Gestion des Réservations</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-check me-2"></i>Gestion des Réservations</h2>
+    <button class="btn btn-dark shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#resForm">
+        <i class="bi bi-calendar-plus me-2"></i> Nouvelle Réservation
+    </button>
 </div>
 
-<div class="card shadow-sm mb-4 border-0">
-    <div class="card-body">
-        <h5 class="card-title mb-3">Réserver un Livre</h5>
-        <form method="POST" class="row g-3">
+<div class="collapse mb-4" id="resForm">
+    <div class="card card-body shadow-sm border-0">
+        <h5 class="card-title mb-3 text-muted">Enregistrer une nouvelle réservation</h5>
+        <form method="POST" action="{% url 'add_reservation' %}">
             {% csrf_token %}
-            <div class="col-md-5">
-                <label class="form-label text-muted">Sélectionner un livre</label>
-                <select name="book_id" class="form-select" required>
-                    <option value="" selected>-- Choisir un livre --</option>
-                    {% for book in available_books %}
-                        <option value="{{ book.id }}">{{ book.title }} ({{ book.author }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-5">
-                <label class="form-label text-muted">Sélectionner un lecteur</label>
-                <select name="reader_id" class="form-select" required>
-                    <option value="" selected>-- Choisir un lecteur --</option>
-                    {% for reader in readers %}
-                        <option value="{{ reader.id }}">{{ reader.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary px-4" style="background-color: #1e293b;">Réserver</button>
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold">Livre disponible</label>
+                    <select name="book" class="form-select" required>
+                        <option value="" selected disabled>-- Choisir un livre --</option>
+                        {% for book in available_books %}
+                            <option value="{{ book.id }}">{{ book.title }} ({{ book.author }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold">Lecteur</label>
+                    <select name="reader" class="form-select" required>
+                        <option value="" selected disabled>-- Choisir un lecteur --</option>
+                        {% for reader in readers %}
+                            <option value="{{ reader.id }}">{{ reader.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm" style="background-color: #1e293b; border: none;">
+                        Confirmer
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -45,24 +52,33 @@
                 <tr>
                     <th class="ps-4">Livre</th>
                     <th>Lecteur</th>
-                    <th>year</th>
-                    <th class="text-end pe-4">Action</th>
+                    <th>Année (Livre)</th>
+                    <th>Date de Réservation</th>
+                    <th class="text-end pe-4">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for res in active_reservations %}
                 <tr>
-                    <td class="ps-4"><strong>{{ res.book.title }}</strong></td>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ res.book.title }}</div>
+                        <div class="small text-muted">{{ res.book.author }}</div>
+                    </td>
                     <td>{{ res.reader.name }}</td>
-                    <td>{{ res.book.year}}</td>
+                    <td><span class="badge bg-secondary opacity-75">{{ res.book.year }}</span></td>
+                    <td class="text-muted small">{{ res.date_reservation|date:"d/m/Y H:i" }}</td>
                     <td class="text-end pe-4">
-                        <a href="{% url 'cancel_reservation' res.id %}" class="btn btn-outline-danger btn-sm">Annuler</a>
+                        <a href="{% url 'cancel_reservation' res.id %}" class="btn btn-outline-danger btn-sm rounded-pill px-3" 
+                           onclick="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                            <i class="bi bi-x-circle me-1"></i> Annuler
+                        </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" class="text-center py-5 text-muted">
-                        Aucune réservation active pour le moment.
+                    <td colspan="5" class="text-center py-5">
+                        <i class="bi bi-inbox text-muted fs-1 d-block mb-2"></i>
+                        <span class="text-muted">Aucune réservation active pour le moment.</span>
                     </td>
                 </tr>
                 {% endfor %}

@@ -2,78 +2,190 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">Catalogue des Livres</h2>
-    <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormBook" aria-expanded="false" aria-controls="collapseFormBook">
+    <h2>Catalogue des Livres</h2>
+    <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#formulaireLivre" aria-expanded="false" aria-controls="formulaireLivre">
         <i class="bi bi-plus-lg me-2"></i> Ajouter un livre
     </button>
 </div>
 
-<div class="collapse mb-4" id="collapseFormBook">
-    <div class="card shadow-sm p-4">
-        <h4 class="mb-4">Nouveau Livre</h4>
-        <form method="POST">
+<div class="collapse mb-4" id="formulaireLivre">
+    <div class="card card-body shadow-sm border-0 bg-white">
+        <h5 class="card-title mb-3 text-muted">Nouveau Livre</h5>
+        <form method="POST" action="{% url 'add_book' %}">
             {% csrf_token %}
             <div class="row g-3">
-                <div class="col-md-5">
-                    <label class="form-label text-muted small">Titre</label>
-                    <input type="text" name="title" class="form-control" placeholder="Titre du livre" required>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Titre</label>
+                    <input type="text" name="title" class="form-control" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label text-muted small">Auteur</label>
-                    <input type="text" name="author" class="form-control" placeholder="Nom de l'auteur" required>
+                    <label class="form-label small fw-bold">Auteur</label>
+                    <input type="text" name="author" class="form-control" required>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label text-muted small">Année</label>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Année</label>
                     <input type="number" name="year" class="form-control" value="2026" required>
                 </div>
-            </div>
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary px-4" style="background-color: #1e293b; border: none;">Enregistrer</button>
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#collapseFormBook">Annuler</button>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm" style="background-color: #1e293b; border: none;">
+                        Enregistrer
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<div class="card shadow-sm p-3 mb-4">
-    <div class="input-group">
-        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-        <input type="text" class="form-control border-start-0" placeholder="Rechercher par titre ou auteur...">
+<div id="editFormContainerBook" style="display: none;" class="mb-4">
+    <div class="card card-body shadow-sm border-0 bg-light border-primary">
+        <h5 class="fw-bold mb-3 text-primary">Modifier le Livre</h5>
+        <form id="editBookForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Titre</label>
+                    <input type="text" id="edit_title" name="title" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Auteur</label>
+                    <input type="text" id="edit_author" name="author" class="form-control" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Année</label>
+                    <input type="number" id="edit_year" name="year" class="form-control" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-success w-100">Valider</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideEditFormBook()">Annuler</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="card shadow-sm">
+<div class="card card-body shadow-sm border-0 mb-4 bg-white">
+    <div class="row g-3">
+        <div class="col-md-7">
+            <label class="form-label small fw-bold text-muted">Recherche rapide</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Titre ou auteur...">
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted">Filtrer par année</label>
+            <form method="GET" action="{% url 'book_list' %}" class="d-flex gap-2">
+                <input type="number" name="year" class="form-control" placeholder="Ex: 2026" value="{{ request.GET.year }}">
+                <button type="submit" class="btn btn-secondary px-3">
+                    <i class="bi bi-filter"></i>
+                </button>
+                {% if request.GET.year %}
+                <a href="{% url 'book_list' %}" class="btn btn-outline-danger">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0" id="bookTable">
             <thead class="table-light">
                 <tr>
-                    <th>Titre</th>
+                    <th class="ps-4">Titre</th>
                     <th>Auteur</th>
                     <th>Année</th>
                     <th>Statut</th>
+                    <th class="text-end pe-4">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
                 <tr>
-                    <td class="fw-medium">{{ book.title }}</td>
+                    <td class="ps-4 fw-bold">{{ book.title }}</td>
                     <td>{{ book.author }}</td>
-                    <td>{{ book.year }}</td>
+                    <td><span class="badge bg-secondary opacity-75">{{ book.year }}</span></td>
                     <td>
-                        {% if book.reservation %}
-                            <span class="badge rounded-pill bg-danger-subtle text-danger">Réservé</span>
+                        {% if book.is_available %}
+                        <span class="badge bg-success-subtle text-success rounded-pill">Disponible</span>
                         {% else %}
-                            <span class="badge rounded-pill bg-success-subtle text-success">Disponible</span>
+                        <span class="badge bg-warning-subtle text-warning rounded-pill">Réservé</span>
                         {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                        <button type="button" class="btn btn-link text-primary p-0 me-2"
+                            onclick="showEditFormBook('{{ book.pk }}', '{{ book.title|escapejs }}', '{{ book.author|escapejs }}', '{{ book.year }}')">
+                            <i class="bi bi-pencil-square fs-5"></i>
+                        </button>
+                        
+                        <a href="{% url 'delete_book' book.pk %}" class="btn btn-link text-danger p-0" 
+                           onclick="return confirm('Supprimer ce livre : {{ book.title|escapejs }} ?');">
+                            <i class="bi bi-trash fs-5"></i>
+                        </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">Aucun livre disponible dans le catalogue.</td>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-book fs-1 d-block mb-2"></i>
+                        Aucun livre ne correspond à votre recherche.
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+/**
+ * Recherche Dynamique (Filtre le tableau en temps réel)
+ */
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    let value = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#bookTable tbody tr");
+
+    rows.forEach(row => {
+        // On ne filtre pas si la ligne affiche "Aucun livre"
+        if (row.cells.length > 1) {
+            let title = row.cells[0].innerText.toLowerCase();
+            let author = row.cells[1].innerText.toLowerCase();
+            row.style.display = (title.includes(value) || author.includes(value)) ? "" : "none";
+        }
+    });
+});
+
+/**
+ * Gestion du formulaire de modification
+ */
+function showEditFormBook(id, title, author, year) {
+    const container = document.getElementById('editFormContainerBook');
+    if(container) {
+        container.style.display = 'block';
+        document.getElementById('edit_title').value = title;
+        document.getElementById('edit_author').value = author;
+        document.getElementById('edit_year').value = year;
+        
+        // On adapte l'URL d'action pour la modification
+        document.getElementById('editBookForm').action = "/catalogue/edit/" + id + "/";
+        
+        // Fermer le formulaire d'ajout s'il est ouvert
+        const addForm = document.getElementById('formulaireLivre');
+        if (addForm.classList.contains('show')) {
+            bootstrap.Collapse.getOrCreateInstance(addForm).hide();
+        }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function hideEditFormBook() {
+    document.getElementById('editFormContainerBook').style.display = 'none';
+}
+</script>
 {% endblock %}
